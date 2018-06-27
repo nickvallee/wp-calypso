@@ -98,14 +98,13 @@ class AboutStep extends Component {
 		this.setState( { query: '' } );
 	};
 
-	handleSuggestionChangeEvent = event => {
-		this.setState( { query: event.target.value } );
-		this.setState( { siteTopicValue: event.target.value } );
+	handleSuggestionChangeEvent = ( { target: { name, value } } ) => {
+		this.setState( { query: value } );
+		this.setState( { siteTopicValue: value } );
 
-		this.formStateController.handleFieldChange( {
-			name: event.target.name,
-			value: event.target.value,
-		} );
+		this.props.recordTracksEvent( 'calypso_signup_actions_select_site_topic', { value } );
+
+		this.formStateController.handleFieldChange( { name, value } );
 	};
 
 	handleSuggestionKeyDown = event => {
@@ -172,11 +171,15 @@ class AboutStep extends Component {
 	};
 
 	getSuggestions() {
+		const query = this.state.query && escapeRegExp( this.state.query );
+		const regex = new RegExp(
+			abtest( 'aboutSuggestionMatches' ) === 'beginningAndEndOfWords'
+				? `\\b${ query }|${ query }\\b`
+				: query,
+			'i'
+		);
 		return Object.values( hints )
-			.filter(
-				hint =>
-					this.state.query && hint.match( new RegExp( escapeRegExp( this.state.query ), 'i' ) )
-			)
+			.filter( hint => query && hint.match( regex ) )
 			.map( hint => ( { label: hint } ) );
 	}
 
@@ -279,6 +282,9 @@ class AboutStep extends Component {
 			findKey( hints, siteTopic => siteTopic === siteTopicInput ) || siteTopicInput;
 
 		eventAttributes.site_topic = englishSiteTopicInput || 'N/A';
+		this.props.recordTracksEvent( 'calypso_signup_actions_submit_site_topic', {
+			value: eventAttributes.site_topic,
+		} );
 
 		this.props.setSurvey( {
 			vertical: englishSiteTopicInput,
