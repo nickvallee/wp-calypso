@@ -10,6 +10,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Gridicon from 'gridicons';
 import page from 'page';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -57,6 +58,9 @@ import { recordGoogleEvent, recordTracksEvent } from 'state/analytics/actions';
  */
 const debug = debugFactory( 'calypso:my-sites:sidebar' );
 
+const getWPAdminPluginLink = site =>
+	get( site, 'options.admin_url' ) + '/plugin-install.php?calypsoify=1';
+
 export class MySitesSidebar extends Component {
 	static propTypes = {
 		setNextLayoutFocus: PropTypes.func.isRequired,
@@ -65,7 +69,7 @@ export class MySitesSidebar extends Component {
 		currentUser: PropTypes.object,
 		isDomainOnly: PropTypes.bool,
 		isJetpack: PropTypes.bool,
-		isSiteAutomatedTransfer: PropTypes.bool,
+		isAtomic: PropTypes.bool,
 	};
 
 	componentDidMount() {
@@ -251,21 +255,24 @@ export class MySitesSidebar extends Component {
 	};
 
 	plugins() {
-		const pluginsLink = '/plugins';
-		const managePluginsLink = '/plugins/manage';
+		const { canManagePlugins, isAtomic, site } = this.props;
+		const pluginsLink = site && isAtomic ? getWPAdminPluginLink( site ) : 'plugins';
+		const managePluginsLink = site && isAtomic ? getWPAdminPluginLink( site ) : 'plugins/manage';
 
 		// checks for manage plugins capability across all sites
-		if ( ! this.props.canManagePlugins ) {
+		if ( ! canManagePlugins ) {
 			return null;
 		}
 
+		const { siteId } = this.props;
+
 		// if selectedSite and cannot manage, skip plugins section
-		if ( this.props.siteId && ! this.props.canUserManageOptions ) {
+		if ( siteId && ! this.props.canUserManageOptions ) {
 			return null;
 		}
 
 		const manageButton =
-			this.props.isJetpack || ( ! this.props.siteId && this.props.hasJetpackSites ) ? (
+			this.props.isJetpack || ( ! siteId && this.props.hasJetpackSites ) ? (
 				<SidebarButton
 					onClick={ this.trackSidebarButtonClick( 'manage_plugins' ) }
 					href={ managePluginsLink }
@@ -283,6 +290,7 @@ export class MySitesSidebar extends Component {
 				icon="plugins"
 				preloadSectionName="plugins"
 				tipTarget="plugins"
+				className={ isAtomic ? 'sidebar__plugins-item' : '' }
 			>
 				{ manageButton }
 			</SidebarItem>
@@ -307,7 +315,7 @@ export class MySitesSidebar extends Component {
 			return null;
 		}
 
-		if ( this.props.isJetpack && ! this.props.isSiteAutomatedTransfer ) {
+		if ( this.props.isJetpack && ! this.props.isAtomic ) {
 			return null;
 		}
 
@@ -393,7 +401,7 @@ export class MySitesSidebar extends Component {
 			return null;
 		}
 
-		const isPermittedSite = canUserManageOptions && this.props.isSiteAutomatedTransfer;
+		const isPermittedSite = canUserManageOptions && this.props.isAtomic;
 
 		if (
 			! isPermittedSite &&
@@ -535,7 +543,7 @@ export class MySitesSidebar extends Component {
 			return null;
 		}
 
-		if ( ! this.useWPAdminFlows() && ! this.props.isSiteAutomatedTransfer ) {
+		if ( ! this.useWPAdminFlows() && ! this.props.isAtomic ) {
 			return null;
 		}
 
@@ -723,7 +731,7 @@ function mapStateToProps( state ) {
 		isJetpack,
 		isPreviewable: isSitePreviewable( state, selectedSiteId ),
 		isSharingEnabledOnJetpackSite,
-		isSiteAutomatedTransfer: !! isSiteAutomatedTransfer( state, selectedSiteId ),
+		isAtomic: !! isSiteAutomatedTransfer( state, selectedSiteId ),
 		siteId,
 		site,
 		siteSuffix: site ? '/' + site.slug : '',
