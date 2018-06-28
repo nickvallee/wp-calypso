@@ -251,8 +251,8 @@ export class MySitesSidebar extends Component {
 	};
 
 	plugins() {
-		const pluginsLink = '/plugins' + this.props.siteSuffix;
-		const managePluginsLink = '/plugins/manage' + this.props.siteSuffix;
+		const pluginsLink = '/plugins';
+		const managePluginsLink = '/plugins/manage';
 
 		// checks for manage plugins capability across all sites
 		if ( ! this.props.canManagePlugins ) {
