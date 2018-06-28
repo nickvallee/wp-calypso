@@ -264,7 +264,7 @@ export class MySitesSidebar extends Component {
 			return null;
 		}
 
-		const { siteId } = this.props;
+		const { siteId, isJetpack, translate } = this.props;
 
 		// if selectedSite and cannot manage, skip plugins section
 		if ( siteId && ! this.props.canUserManageOptions ) {
@@ -272,18 +272,18 @@ export class MySitesSidebar extends Component {
 		}
 
 		const manageButton =
-			this.props.isJetpack || ( ! siteId && this.props.hasJetpackSites ) ? (
+			! isAtomic && ( isJetpack || ( ! siteId && this.props.hasJetpackSites ) ) ? (
 				<SidebarButton
 					onClick={ this.trackSidebarButtonClick( 'manage_plugins' ) }
 					href={ managePluginsLink }
 				>
-					{ this.props.translate( 'Manage' ) }
+					{ translate( 'Manage' ) }
 				</SidebarButton>
 			) : null;
 
 		return (
 			<SidebarItem
-				label={ this.props.translate( 'Plugins' ) }
+				label={ translate( 'Plugins' ) }
 				selected={ itemLinkMatches( [ '/extensions', '/plugins' ], this.props.path ) }
 				link={ pluginsLink }
 				onNavigate={ this.trackPluginsClick }
