@@ -281,6 +281,12 @@ export class MySitesSidebar extends Component {
 				</SidebarButton>
 			) : null;
 
+		const chevronRight = isAtomic && (
+			<div className="sidebar__chevron-right">
+				<Gridicon icon="chevron-right" />
+			</div>
+		);
+
 		return (
 			<SidebarItem
 				label={ translate( 'Plugins' ) }
@@ -291,8 +297,10 @@ export class MySitesSidebar extends Component {
 				preloadSectionName="plugins"
 				tipTarget="plugins"
 				className={ isAtomic ? 'sidebar__plugins-item' : '' }
+				forceInternalLink={ isAtomic }
 			>
 				{ manageButton }
+				{ chevronRight }
 			</SidebarItem>
 		);
 	}
