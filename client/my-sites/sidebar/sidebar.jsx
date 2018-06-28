@@ -282,7 +282,7 @@ export class MySitesSidebar extends Component {
 			) : null;
 
 		const chevronRight = isAtomic && (
-			<div className="sidebar__chevron-right">
+			<div className="sidebar__chevron-right sidebar__plugins-icon">
 				<Gridicon icon="chevron-right" />
 			</div>
 		);
