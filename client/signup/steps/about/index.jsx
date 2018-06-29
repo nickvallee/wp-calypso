@@ -171,15 +171,19 @@ class AboutStep extends Component {
 	};
 
 	getSuggestions() {
-		const query = this.state.query && escapeRegExp( this.state.query );
-		const regex = new RegExp(
-			abtest( 'aboutSuggestionMatches' ) === 'beginningAndEndOfWords'
-				? `\\b${ query }|${ query }\\b`
-				: query,
-			'i'
-		);
+		const query = this.state.query && escapeRegExp( this.state.query ).toLowerCase();
+		const regex = new RegExp( query, 'i' );
+
+		// Prioritize suggestions starting with query input first
+		const sortFunction = ( a, b ) =>
+			abtest( 'aboutSuggestionMatches' ) === 'enhancedSort'
+				? a.localeCompare( b ) -
+				  ( b.toLowerCase().indexOf( query ) - a.toLowerCase().indexOf( query ) )
+				: a.localeCompare( b );
+
 		return Object.values( hints )
 			.filter( hint => query && hint.match( regex ) )
+			.sort( sortFunction )
 			.map( hint => ( { label: hint } ) );
 	}
 
