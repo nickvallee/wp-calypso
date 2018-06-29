@@ -555,6 +555,10 @@ export class MySitesSidebar extends Component {
 			return null;
 		}
 
+		if ( this.props.isAtomic ) {
+			return null;
+		}
+
 		return (
 			<li className="wp-admin">
 				<a
